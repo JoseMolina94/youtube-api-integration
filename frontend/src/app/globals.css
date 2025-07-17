@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Light theme (default) */
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  
+  /* Additional theme colors */
+  --primary-color: 59, 130, 246;
+  --secondary-color: 107, 114, 128;
+  --accent-color: 147, 51, 234;
+  --success-color: 34, 197, 94;
+  --warning-color: 245, 158, 11;
+  --error-color: 239, 68, 68;
+  
+  /* Surface colors */
+  --surface-primary: 255, 255, 255;
+  --surface-secondary: 249, 250, 251;
+  --surface-tertiary: 243, 244, 246;
+  
+  /* Border colors */
+  --border-color: 229, 231, 235;
+  --border-color-hover: 209, 213, 219;
+  
+  /* Text colors */
+  --text-primary: 17, 24, 39;
+  --text-secondary: 107, 114, 128;
+  --text-tertiary: 156, 163, 175;
+  
+  /* Shadow */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
+  
+  /* Additional theme colors */
+  --primary-color: 96, 165, 250;
+  --secondary-color: 156, 163, 175;
+  --accent-color: 168, 85, 247;
+  --success-color: 74, 222, 128;
+  --warning-color: 251, 191, 36;
+  --error-color: 248, 113, 113;
+  
+  /* Surface colors */
+  --surface-primary: 17, 24, 39;
+  --surface-secondary: 31, 41, 55;
+  --surface-tertiary: 55, 65, 81;
+  
+  /* Border colors */
+  --border-color: 75, 85, 99;
+  --border-color-hover: 107, 114, 128;
+  
+  /* Text colors */
+  --text-primary: 243, 244, 246;
+  --text-secondary: 156, 163, 175;
+  --text-tertiary: 107, 114, 128;
+  
+  /* Shadow */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+}
+
+/* System preference fallback */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+    
+    /* Additional theme colors */
+    --primary-color: 96, 165, 250;
+    --secondary-color: 156, 163, 175;
+    --accent-color: 168, 85, 247;
+    --success-color: 74, 222, 128;
+    --warning-color: 251, 191, 36;
+    --error-color: 248, 113, 113;
+    
+    /* Surface colors */
+    --surface-primary: 17, 24, 39;
+    --surface-secondary: 31, 41, 55;
+    --surface-tertiary: 55, 65, 81;
+    
+    /* Border colors */
+    --border-color: 75, 85, 99;
+    --border-color-hover: 107, 114, 128;
+    
+    /* Text colors */
+    --text-primary: 243, 244, 246;
+    --text-secondary: 156, 163, 175;
+    --text-tertiary: 107, 114, 128;
+    
+    /* Shadow */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+/* Utility classes for theme colors */
+.text-primary { color: rgb(var(--text-primary)); }
+.text-secondary { color: rgb(var(--text-secondary)); }
+.text-tertiary { color: rgb(var(--text-tertiary)); }
+
+.bg-surface-primary { background-color: rgb(var(--surface-primary)); }
+.bg-surface-secondary { background-color: rgb(var(--surface-secondary)); }
+.bg-surface-tertiary { background-color: rgb(var(--surface-tertiary)); }
+
+.border-theme { border-color: rgb(var(--border-color)); }
+.border-theme-hover:hover { border-color: rgb(var(--border-color-hover)); }
+
+.shadow-theme-sm { box-shadow: var(--shadow-sm); }
+.shadow-theme-md { box-shadow: var(--shadow-md); }
+.shadow-theme-lg { box-shadow: var(--shadow-lg); }
