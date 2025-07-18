@@ -15,36 +15,67 @@ export default function Header() {
   const router = useRouter()
   const pathname = usePathname()
 
-  const getUserLogged = (token: string | null) => {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/auth/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Token inválido o expirado")
-        const data = await res.json()
-        setUser(data.user)
+  const getUserLogged = async (token: string | null) => {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:4000/api"
+      const res = await fetch(`${backendUrl}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .catch((err) => {
-        console.error("Error al cargar usuario:", err.message)
+      
+      if (!res.ok) {
+        // Si el token es inválido, limpiar localStorage
+        localStorage.removeItem("token")
+        localStorage.removeItem("user")
         setUser(null)
-      })
+        return
+      }
+      
+      const data = await res.json()
+      setUser(data.user)
+    } catch (err: any) {
+      console.error("Error al cargar usuario:", err.message)
+      // En caso de error, limpiar localStorage
+      localStorage.removeItem("token")
+      localStorage.removeItem("user")
+      setUser(null)
+    }
   }
 
   const handleLogout = () => {
     localStorage.removeItem("token")
+    localStorage.removeItem("user")
     setUser(null)
     setShowMenu(false)
-    router.push("/login")
+    router.push("/")
   }
 
   useEffect(() => {
     const token = localStorage.getItem("token")
 
-    if (!token) return
-    if (!user) getUserLogged(token)
+    if (!token) {
+      setUser(null)
+      return
+    }
+    
+    // Verificar si hay datos de usuario en localStorage como fallback
+    const savedUser = localStorage.getItem("user")
+    
+    if (savedUser && !user) {
+      try {
+        const parsedUser = JSON.parse(savedUser)
+        setUser(parsedUser)
+      } catch (error) {
+        console.error("Error parsing saved user:", error)
+      }
+    }
 
+    // Verificar con el backend (solo si no hay usuario ya cargado)
+    if (!user) {
+      getUserLogged(token)
+    }
+    
     setShowMenu(false)
 
   }, [pathname])

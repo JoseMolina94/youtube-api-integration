@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Header from '@/components/Header'
+import { ToastProvider } from '@/contexts/ToastContext'
 
 import './globals.css'
 
@@ -16,13 +17,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className='min-h-screen flex flex-col justify-between' >
-        <div>
-          <Header />
+        <ToastProvider>
           <div>
-            {children}
+            <Header />
+            <div>
+              {children}
+            </div>
           </div>
-        </div>
-
+        </ToastProvider>
       </body>
     </html>
   )

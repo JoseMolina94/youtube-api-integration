@@ -26,13 +26,15 @@ export default function LoginPage() {
     setError("")
 
     try {
-      const res = await fetch("http://localhost:4000/api/auth/login", {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:4000/api"
+      const res = await fetch(`${backendUrl}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginFormState),
       })
 
       const data = await res.json()
+      
       if (!res.ok) throw new Error(data.message || "Error al iniciar sesión")
 
       localStorage.setItem("token", data.token)
