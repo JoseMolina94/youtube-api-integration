@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
@@ -16,6 +16,17 @@ export default function LoginPage() {
     password: "",
   })
   const [error, setError] = useState("")
+
+  // Guardar la última URL visitada antes de llegar a login
+  useEffect(() => {
+    const lastUrl = localStorage.getItem('lastVisitedUrl');
+    const from = window.location.pathname + window.location.search;
+    if (!lastUrl || lastUrl === '/login' || lastUrl === '/register') {
+      if (from !== '/login' && from !== '/register') {
+        localStorage.setItem('lastVisitedUrl', from);
+      }
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setLoginFormState({ ...loginFormState, [e.target.name]: e.target.value });
@@ -40,7 +51,14 @@ export default function LoginPage() {
       localStorage.setItem("token", data.token)
       localStorage.setItem("user", JSON.stringify(data.user))
 
-      router.push("/")
+      // Redirigir a la última URL visitada si existe y no es login/register
+      const lastUrl = localStorage.getItem('lastVisitedUrl');
+      if (lastUrl && lastUrl !== '/login' && lastUrl !== '/register') {
+        localStorage.removeItem('lastVisitedUrl');
+        router.push(lastUrl);
+      } else {
+        router.push("/");
+      }
     } catch (err: any) {
       setError(err.message)
     }

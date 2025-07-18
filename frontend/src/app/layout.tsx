@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import { ToastProvider } from '@/contexts/ToastContext'
+import { FavoritesProvider } from '@/contexts/FavoritesContext'
 
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Video Store TV',
-  description: 'Video Store TV Web',
+  title: 'Youtube Store',
+  description: 'Your favorite video store for youtube',
 }
 
 export default function RootLayout({
@@ -18,12 +19,14 @@ export default function RootLayout({
     <html lang="en">
       <body className='min-h-screen flex flex-col justify-between' >
         <ToastProvider>
-          <div>
-            <Header />
+          <FavoritesProvider>
             <div>
-              {children}
+              <Header />
+              <div>
+                {children}
+              </div>
             </div>
-          </div>
+          </FavoritesProvider>
         </ToastProvider>
       </body>
     </html>

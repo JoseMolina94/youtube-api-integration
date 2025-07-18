@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { StarIcon, ClockIcon } from '@/components/Icons';
 import { useToast } from '@/contexts/ToastContext';
+import { useFavorites } from '@/contexts/FavoritesContext';
 
 interface VideoCardProps {
   video: Video;
@@ -13,24 +14,17 @@ export default function VideoCard({ video, formatDate }: VideoCardProps) {
   const channelId = video.id.channelId || video.snippet.channelId;
   const videoId = video.id.videoId;
   const { showToast } = useToast();
+  const { favorites, addFavorite, removeFavorite } = useFavorites();
 
-  const [isFavorite, setIsFavorite] = useState(false);
   const [isSeeLater, setIsSeeLater] = useState(false);
   const [loadingFav, setLoadingFav] = useState(false);
   const [loadingSeeLater, setLoadingSeeLater] = useState(false);
 
-  // Cargar estado inicial desde backend si hay token
+  // Cargar estado inicial de ver más tarde desde backend si hay token
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token || !videoId) return;
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:4000/api';
-    fetch(`${backendUrl}/user/favorites`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data.favorites)) setIsFavorite(data.favorites.includes(videoId));
-      });
     fetch(`${backendUrl}/user/see-later`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -50,16 +44,17 @@ export default function VideoCard({ video, formatDate }: VideoCardProps) {
       return;
     }
     setLoadingFav(true);
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:4000/api';
     try {
-      const method = isFavorite ? 'DELETE' : 'POST';
-      const res = await fetch(`${backendUrl}/user/favorites/${videoId}`, {
-        method,
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error('Error al actualizar favoritos');
-      setIsFavorite(!isFavorite);
-      showToast(isFavorite ? 'Eliminado de favoritos' : 'Agregado a favoritos', 'success');
+      if (videoId) {
+        const isFav = favorites.includes(videoId);
+        if (isFav) {
+          await removeFavorite(videoId);
+          showToast('Eliminado de favoritos', 'success');
+        } else {
+          await addFavorite(videoId);
+          showToast('Agregado a favoritos', 'success');
+        }
+      }
     } catch {
       showToast('Error al actualizar favoritos', 'error');
     } finally {
@@ -123,10 +118,10 @@ export default function VideoCard({ video, formatDate }: VideoCardProps) {
               <button
                 onClick={handleFavorite}
                 disabled={loadingFav}
-                title={isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
-                className={`rounded-full p-1 transition-colors ${isFavorite ? 'text-yellow-400' : 'text-tertiary hover:text-yellow-400'} ${loadingFav ? 'opacity-50 cursor-wait' : ''}`}
+                title={videoId && favorites.includes(videoId) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                className={`rounded-full p-1 transition-colors ${videoId && favorites.includes(videoId) ? 'text-yellow-400' : 'text-tertiary hover:text-yellow-400'} ${loadingFav ? 'opacity-50 cursor-wait' : ''}`}
               >
-                <StarIcon filled={isFavorite} />
+                <StarIcon filled={!!(videoId && favorites.includes(videoId))} />
               </button>
               <button
                 onClick={handleSeeLater}

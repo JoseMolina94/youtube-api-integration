@@ -6,7 +6,9 @@ import UserAvatar from "@/components/UserAvatar"
 import UserMenu from "@/components/UserMenu"
 import { User } from "@/types/User"
 import Link from "next/link"
+import YoutubeStoreIcon from "@/components/Icons/YoutubeStoreIcon";
 import ToggleThemeBtn from "@/components/ToggleThemeBtn"
+import VideoSearcher from "@/components/VideoSearcher";
 
 export default function Header() {
   const [user, setUser] = useState<User | null>(null)
@@ -44,11 +46,23 @@ export default function Header() {
   }
 
   const handleLogout = () => {
+    // Guardar la última URL visitada antes de logout
+    const from = window.location.pathname + window.location.search;
+    if (from !== '/login' && from !== '/register') {
+      localStorage.setItem('lastVisitedUrl', from);
+    }
     localStorage.removeItem("token")
     localStorage.removeItem("user")
     setUser(null)
     setShowMenu(false)
-    router.push("/")
+    // Redirigir a la última URL visitada si existe y no es login/register
+    const lastUrl = localStorage.getItem('lastVisitedUrl');
+    if (lastUrl && lastUrl !== '/login' && lastUrl !== '/register') {
+      localStorage.removeItem('lastVisitedUrl');
+      router.push(lastUrl);
+    } else {
+      router.push("/");
+    }
   }
 
   useEffect(() => {
@@ -92,56 +106,68 @@ export default function Header() {
   }, [])
 
   return (
-    <header className="w-full bg-surface-primary text-primary py-4 px-2 md:px-6 shadow-theme-md border-b border-theme relative">
-      <div className="flex justify-between items-center">
-        <Link href={'/'}>
-          <h1 className="text-2xl md:text-4xl font-bold cursor-pointer shrink-0 text-primary flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 md:w-10 md:h-10">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-            Video Store TV
-          </h1>
-        </Link>
-        <div className="flex items-center gap-4">
-          <ToggleThemeBtn />
-
-          {user ? (
-            <div ref={menuRef} className="relative">
-              <div
-                className="flex gap-2 items-center cursor-pointer"
-                onClick={() => setShowMenu(!showMenu)}
-              >
-                <div className="text-sm hidden md:block text-primary text-right">
-                  <p>
-                    Bienvenid@, 
-                    <span className="font-medium capitalize"> {user.name} </span>
-                  </p>
-                  <span className="text-xs text-tertiary">{user.email}</span>
-                </div>
-                <UserAvatar />
-              </div>
-
-              {showMenu && (
-                <UserMenu 
-                  user={user}
-                  handleLogout={handleLogout} 
-                />
-              )}
+    <header className="w-full bg-surface-primary text-primary py-4 px-2 md:px-6 shadow-theme-md border-b border-theme sticky top-0 z-50">
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center w-full">
+          <Link href={'/'}>
+            <div className="flex items-center">
+              <YoutubeStoreIcon className="w-28 h-6 md:w-36 md:h-8" />
             </div>
-          ) : (
-            <Link href='/login'>
-              <div 
-                className="cursor-pointer hidden md:block border border-theme px-3 py-1 rounded-full bg-surface-secondary hover:bg-surface-tertiary transition-colors text-primary"
-              >
-                Iniciar Sesión
-              </div>
-
-              <div className="cursor-pointer text-xs md:hidden block border border-theme px-3 py-1 rounded-full bg-surface-secondary hover:bg-surface-tertiary transition-colors text-primary">
-                Sesión
-              </div>
-            </Link>
+          </Link>
+          {/* Desktop: Buscador entre título y botones */}
+          {!(pathname === '/login' || pathname === '/register') && (
+            <div className="hidden md:flex flex-1 mx-6 max-w-xl">
+              <VideoSearcher />
+            </div>
           )}
+          <div className="flex items-center gap-4">
+            <ToggleThemeBtn />
+            {user ? (
+              <div ref={menuRef} className="relative">
+                <div
+                  className="flex gap-2 items-center cursor-pointer"
+                  onClick={() => setShowMenu(!showMenu)}
+                >
+                  <div className="text-sm hidden md:block text-primary text-right">
+                    <p>
+                      Bienvenid@, 
+                      <span className="font-medium capitalize"> {user.name} </span>
+                    </p>
+                    <span className="text-xs text-tertiary">{user.email}</span>
+                  </div>
+                  <UserAvatar />
+                </div>
+                {showMenu && (
+                  <UserMenu 
+                    user={user}
+                    handleLogout={handleLogout} 
+                  />
+                )}
+              </div>
+            ) : (
+              <Link href='/login' onClick={() => {
+                const from = window.location.pathname + window.location.search;
+                if (from !== '/login' && from !== '/register') {
+                  localStorage.setItem('lastVisitedUrl', from);
+                }
+              }}>
+                {/* Desktop: Iniciar Sesión, Tablet/Mobile: Sesión */}
+                <div className="cursor-pointer hidden lg:block border border-theme px-3 py-1 rounded-full bg-surface-secondary hover:bg-surface-tertiary transition-colors text-primary">
+                  Iniciar Sesión
+                </div>
+                <div className="cursor-pointer text-xs lg:hidden block border border-theme px-3 py-1 rounded-full bg-surface-secondary hover:bg-surface-tertiary transition-colors text-primary">
+                  Sesión
+                </div>
+              </Link>
+            )}
+          </div>
         </div>
+        {/* Mobile: Buscador debajo del header */}
+        {!(pathname === '/login' || pathname === '/register') && (
+          <div className="block md:hidden w-full mt-2">
+            <VideoSearcher />
+          </div>
+        )}
       </div>
     </header>
   )

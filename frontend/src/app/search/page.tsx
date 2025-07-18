@@ -5,7 +5,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import VideoCard from '@/components/VideoCard';
-import VideoSearcher from '@/components/VideoSearcher';
 import ChannelMiniCard from '@/components/ChannelMiniCard';
 
 export default function SearchPage() {
@@ -73,7 +72,11 @@ export default function SearchPage() {
     try {
       const response = await fetch(`http://localhost:4000/api/youtube/search?q=${encodeURIComponent(query)}&type=video&pageToken=${videoNextPageToken}`);
       const data = await response.json();
-      setVideos((prev) => [...prev, ...data.items]);
+      setVideos((prev) => {
+        const existingIds = new Set(prev.map(v => v.id.videoId));
+        const newItems = data.items.filter((v: any) => !existingIds.has(v.id.videoId));
+        return [...prev, ...newItems];
+      });
       setVideoNextPageToken(data.nextPageToken || null);
     } finally {
       setLoadingMore(false);
@@ -87,7 +90,11 @@ export default function SearchPage() {
     try {
       const response = await fetch(`http://localhost:4000/api/youtube/search?q=${encodeURIComponent(query)}&type=channel&pageToken=${channelNextPageToken}`);
       const data = await response.json();
-      setChannels((prev) => [...prev, ...data.items]);
+      setChannels((prev) => {
+        const existingIds = new Set(prev.map(c => c.id.channelId));
+        const newItems = data.items.filter((c: any) => !existingIds.has(c.id.channelId));
+        return [...prev, ...newItems];
+      });
       setChannelNextPageToken(data.nextPageToken || null);
     } finally {
       setLoadingMore(false);
@@ -138,14 +145,7 @@ export default function SearchPage() {
   return (
     <div className="min-h-screen bg-surface-primary text-primary">
       <main className="container mx-auto px-4 py-8">
-        {/* Buscador */}
-        <VideoSearcher 
-          onVideosChange={handleVideosChange}
-          onLoadingChange={handleLoadingChange}
-          onErrorChange={handleErrorChange}
-          onQueryChange={handleQueryChange}
-        />
-
+        {/* Buscador eliminado, ahora está en el header */}
         {error && (
           <p className="text-red-500 text-center mt-4">{error}</p>
         )}

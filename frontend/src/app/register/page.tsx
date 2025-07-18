@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User } from "@/types/User";
@@ -9,6 +9,16 @@ import { useToast } from "@/contexts/ToastContext";
 export default function RegisterPage() {
   const router = useRouter();
   const { showToast } = useToast();
+  // Guardar la última URL visitada antes de llegar a register
+  useEffect(() => {
+    const lastUrl = localStorage.getItem('lastVisitedUrl');
+    const from = window.location.pathname + window.location.search;
+    if (!lastUrl || lastUrl === '/login' || lastUrl === '/register') {
+      if (from !== '/login' && from !== '/register') {
+        localStorage.setItem('lastVisitedUrl', from);
+      }
+    }
+  }, []);
   const DEFAULT_USER: User = {
     name: "",
     email: "",
@@ -43,7 +53,14 @@ export default function RegisterPage() {
       }
 
       showToast("¡Registro realizado con éxito!", "success");
-      router.push("/login");
+      // Redirigir a la última URL visitada si existe y no es login/register
+      const lastUrl = localStorage.getItem('lastVisitedUrl');
+      if (lastUrl && lastUrl !== '/login' && lastUrl !== '/register') {
+        localStorage.removeItem('lastVisitedUrl');
+        router.push(lastUrl);
+      } else {
+        router.push("/");
+      }
     } catch (err) {
       console.error(err);
       showToast("Error en la conexión con el servidor", "error");

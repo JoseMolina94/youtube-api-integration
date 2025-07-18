@@ -2,7 +2,6 @@
 
 import { Video } from '@/types/Video';
 import { useState, useEffect, useRef } from 'react';
-import VideoSearcher from '@/components/VideoSearcher';
 import VideoCard from '@/components/VideoCard';
 
 export default function Home() {
@@ -95,18 +94,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-surface-primary text-primary">
       <main className="container mx-auto px-4 py-8" ref={scrollRef}>
-        {/* Buscador */}
-        <VideoSearcher 
-          onVideosChange={(videos) => setVideos(videos)}
-          onLoadingChange={setLoading}
-          onErrorChange={setError}
-          onQueryChange={(query) => {
-            setCurrentQuery(query);
-            handleSearch(query);
-          }}
-          disableInitialSearch={true}
-        />
-
+        {/* Buscador eliminado, ahora está en el header */}
         {error && (
           <p className="text-red-500 text-center mt-4">{error}</p>
         )}
