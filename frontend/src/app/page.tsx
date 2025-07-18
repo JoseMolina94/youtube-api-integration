@@ -34,8 +34,8 @@ export default function Home() {
           throw new Error('Error al cargar videos');
         }
         const data = await response.json();
-        setVideos(data.items);
-        setNextPageToken(data.nextPageToken || null);
+        setVideos(data?.items);
+        setNextPageToken(data?.nextPageToken || null);
       } catch (err: any) {
         setError(err.message || 'Error al cargar videos');
       } finally {
@@ -56,8 +56,8 @@ export default function Home() {
         throw new Error('Error al buscar videos');
       }
       const data = await response.json();
-      setVideos(data.items);
-      setNextPageToken(data.nextPageToken || null);
+      setVideos(data?.items);
+      setNextPageToken(data?.nextPageToken || null);
     } catch (err: any) {
       setError(err.message || 'Error al buscar videos');
     } finally {
@@ -84,8 +84,12 @@ export default function Home() {
     try {
       const response = await fetch(`http://localhost:4000/api/youtube/search?q=${encodeURIComponent(currentQuery || 'trending')}&pageToken=${nextPageToken}`);
       const data = await response.json();
-      setVideos((prev) => [...prev, ...data.items]);
-      setNextPageToken(data.nextPageToken || null);
+      setVideos((prev) => {
+        const existingIds = new Set(prev.map(v => v.id.videoId));
+        const newItems = data?.items.filter((v: any) => !existingIds.has(v.id.videoId));
+        return [...prev, ...newItems];
+      });
+      setNextPageToken(data?.nextPageToken || null);
     } finally {
       setLoadingMore(false);
     }
@@ -102,9 +106,6 @@ export default function Home() {
         {/* Lista de videos */}
         {videos?.length > 0 && (
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-2xl font-semibold mb-6 text-primary">
-              {currentQuery ? `Resultados para "${currentQuery}"` : 'Videos populares'} ({videos.length} videos)
-            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {videos?.map((video) => (
                 <VideoCard key={video.id.videoId} video={video} formatDate={formatDate} />

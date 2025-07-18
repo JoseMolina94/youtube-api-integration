@@ -22,6 +22,10 @@ export default function UserMenu (props : UserMenuProps) {
     {
       label: 'Vídeos Favoritos',
       href: '/favorites'
+    },
+    {
+      label: 'Ver más tarde',
+      href: '/see-later'
     }
   ]
 
