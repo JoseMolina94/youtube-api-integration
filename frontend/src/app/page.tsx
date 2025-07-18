@@ -3,7 +3,7 @@
 import { Video } from '@/types/Video';
 import { useState, useEffect, useRef } from 'react';
 import VideoSearcher from '@/components/VideoSearcher';
-import ItemCard from '@/components/ItemCard';
+import VideoCard from '@/components/VideoCard';
 
 export default function Home() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -119,7 +119,7 @@ export default function Home() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {videos?.map((video) => (
-                <ItemCard key={video.id.videoId} video={video} formatDate={formatDate} />
+                <VideoCard key={video.id.videoId} video={video} formatDate={formatDate} />
               ))}
             </div>
             {loadingMore && (

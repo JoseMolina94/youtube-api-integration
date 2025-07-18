@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import ItemCard from '@/components/ItemCard';
+import VideoCard from '@/components/VideoCard';
 import { Video } from '@/types/Video';
 
 export default function ChannelDetailPage() {
@@ -82,7 +82,7 @@ export default function ChannelDetailPage() {
         <h2 className="text-2xl font-semibold mb-6 text-primary">Videos del canal</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {videos?.map((video) => (
-            <ItemCard key={video.id.videoId} video={video} formatDate={formatDate} />
+            <VideoCard key={video.id.videoId} video={video} formatDate={formatDate} />
           ))}
         </div>
         {videos?.length === 0 && (

@@ -45,9 +45,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-16 bg-surface-primary text-primary p-8 md:shadow-theme-lg rounded-xl border-theme">
+    <div className="h-[calc(100vh-80px)] bg-surface-secondary text-primary flex items-center justify-center px-4">
+      <div className="max-w-md w-full bg-surface-primary text-primary p-6 md:p-8 md:shadow-theme-lg rounded-xl border-theme">
 
-      <h2 className="text-center text-2xl font-bold mb-4 text-primary">Iniciar sesión</h2>
+        <h2 className="text-center text-2xl font-bold mb-4 text-primary">Iniciar sesión</h2>
 
       {
         error && 
@@ -94,6 +95,7 @@ export default function LoginPage() {
           </span>
         </Link>
       </div>
+    </div>
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { searchYouTube, getChannelDetails } from '../utils/youtube';
+import { searchYouTube, getChannelDetails, getVideoDetails, getRelatedVideos } from '../utils/youtube';
 
 const router = Router();
 
@@ -28,6 +28,33 @@ router.get('/channel', async (req: Request, res: Response) => {
     res.json(details);
   } catch (err: any) {
     console.error('Error obteniendo detalles del canal:', err);
+    res.status(500).json({ error: 'Error al consultar YouTube' });
+  }
+});
+
+router.get('/video', async (req: Request, res: Response) => {
+  const id = req.query.id as string;
+  if (!id) return res.status(400).json({ error: 'Parámetro "id" requerido' });
+  try {
+    const video = await getVideoDetails(id);
+    if (!video) return res.status(404).json({ error: 'Video no encontrado' });
+    res.json(video);
+  } catch (err: any) {
+    console.error('Error obteniendo detalles del video:', err);
+    res.status(500).json({ error: 'Error al consultar YouTube' });
+  }
+});
+
+router.get('/related', async (req: Request, res: Response) => {
+  const id = req.query.id as string;
+  const pageToken = req.query.pageToken as string | undefined;
+  if (!id) return res.status(400).json({ error: 'Parámetro "id" requerido' });
+  try {
+    const related = await getRelatedVideos(id, pageToken);
+    console.log('Videos relacionados encontrados:', related.items?.length || 0);
+    res.json(related);
+  } catch (err: any) {
+    console.error('Error obteniendo videos relacionados:', err);
     res.status(500).json({ error: 'Error al consultar YouTube' });
   }
 });

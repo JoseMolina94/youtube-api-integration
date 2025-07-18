@@ -4,7 +4,7 @@ import { Video } from '@/types/Video';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import ItemCard from '@/components/ItemCard';
+import VideoCard from '@/components/VideoCard';
 import VideoSearcher from '@/components/VideoSearcher';
 import ChannelMiniCard from '@/components/ChannelMiniCard';
 
@@ -179,7 +179,7 @@ export default function SearchPage() {
                 </h2>
                 <div className="grid grid-cols-1 gap-6">
                   {videos?.map((video) => (
-                    <ItemCard key={video.id.videoId} video={video} formatDate={formatDate} />
+                    <VideoCard key={video.id.videoId} video={video} formatDate={formatDate} />
                   ))}
                 </div>
                 {!loading && videos?.length === 0 && query && (
@@ -242,7 +242,7 @@ export default function SearchPage() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {videos?.map((video) => (
-                      <ItemCard key={video.id.videoId} video={video} formatDate={formatDate} />
+                      <VideoCard key={video.id.videoId} video={video} formatDate={formatDate} />
                     ))}
                   </div>
                 </div>
