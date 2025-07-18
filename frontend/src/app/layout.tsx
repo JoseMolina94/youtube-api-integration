@@ -4,8 +4,8 @@ import Header from '@/components/Header'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Energy Market',
-  description: 'Energy Market Client Web',
+  title: 'Video Store TV',
+  description: 'Video Store TV Web',
 }
 
 export default function RootLayout({

@@ -20,12 +20,8 @@ export default function UserMenu (props : UserMenuProps) {
 
   const menu: TMenuItem[] = [
     {
-      label: 'Ofertas',
-      href: '/',
-    },
-    {
-      label: 'Historial de transacciones',
-      href: '/transactions'
+      label: 'Vídeos Favoritos',
+      href: '/favorites'
     }
   ]
 
