@@ -57,13 +57,17 @@ export default function ChannelDetailPage() {
     <div className="min-h-screen bg-surface-primary text-primary">
       {/* Banner */}
       {channel.banner ? (
-        <div className="w-full h-40 md:h-60 bg-cover bg-center" style={{ backgroundImage: `url(${channel.banner})` }} />
+        <div className="relative w-full h-40 md:h-60 bg-cover bg-center" style={{ backgroundImage: `url(${channel.banner})` }}>
+          <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
+        </div>
       ) : (
-        <div className="w-full h-40 md:h-60 bg-gray-800" />
+        <div className="w-full h-40 md:h-60 relative">
+          <div className="absolute inset-0 bg-black/30" />
+        </div>
       )}
       <div className="container mx-auto px-4 py-8">
         {/* Avatar y nombre */}
-        <div className="flex items-center gap-6 mb-8">
+        <div className="flex relative z-[1] items-center gap-6 mb-8">
           <img
             src={channel.avatar}
             alt={channel.title}
