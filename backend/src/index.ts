@@ -4,12 +4,12 @@ import cors from "cors";
 import connectDB from "./config/db";
 import authRoutes from "./routes/auth.routes";
 import youtubeRoutes from './routes/youtube.routes';
+import userRoutes from './routes/user.routes';
 import { errorHandler } from "./middleware/errorHandler";
 
 dotenv.config();
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
@@ -17,6 +17,7 @@ connectDB();
 
 app.use("/api/auth", authRoutes);
 app.use("/api/youtube", youtubeRoutes);
+app.use("/api/user", userRoutes);
 
 app.use(errorHandler);
 

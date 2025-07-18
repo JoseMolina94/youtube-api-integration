@@ -203,15 +203,7 @@ export default function SearchPage() {
                 </h3>
                 <div className="space-y-2">
                   {channels?.map((channel) => (
-                    <Link
-                      key={channel.id.channelId}
-                      href={`https://www.youtube.com/channel/${channel.id.channelId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block"
-                    >
-                      <ChannelMiniCard channel={channel} />
-                    </Link>
+                    <ChannelMiniCard key={channel.id.channelId} channel={channel} />
                   ))}
                 </div>
                 {!loading && channels?.length === 0 && query && (
@@ -273,15 +265,7 @@ export default function SearchPage() {
                   
                   <div className="space-y-2">
                     {channels?.map((channel) => (
-                      <Link
-                        key={channel.id.channelId}
-                        href={`https://www.youtube.com/channel/${channel.id.channelId}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block"
-                      >
-                        <ChannelMiniCard channel={channel} />
-                      </Link>
+                      <ChannelMiniCard key={channel.id.channelId} channel={channel} />
                     ))}
                   </div>
                 </div>

@@ -1,5 +1,8 @@
 import { Video } from '@/types/Video';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { StarIcon, ClockIcon } from '@/components/Icons';
+import { useToast } from '@/contexts/ToastContext';
 
 interface VideoCardProps {
   video: Video;
@@ -7,55 +10,91 @@ interface VideoCardProps {
 }
 
 export default function VideoCard({ video, formatDate }: VideoCardProps) {
-  const isChannel = video.id.channelId;
-  const isVideo = video.id.videoId;
   const channelId = video.id.channelId || video.snippet.channelId;
-  
-  // Si es un canal, usar thumbnail default, si es video usar medium
-  const thumbnailUrl = isChannel 
-    ? video.snippet.thumbnails.default?.url 
-    : video.snippet.thumbnails.medium?.url;
+  const videoId = video.id.videoId;
+  const { showToast } = useToast();
 
-  if (isChannel) {
-    // Para canales, mantener el diseño original sin enlace
-    return (
-      <div
-        className="bg-surface-secondary border border-theme rounded-lg overflow-hidden shadow-theme-md hover:shadow-theme-lg transition-shadow h-full flex flex-col"
-      >
-        {/* Thumbnail */}
-        <div className="relative">
-          <img
-            src={thumbnailUrl}
-            alt={video.snippet.title}
-            className="w-full h-48 object-cover"
-          />
-        </div>
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isSeeLater, setIsSeeLater] = useState(false);
+  const [loadingFav, setLoadingFav] = useState(false);
+  const [loadingSeeLater, setLoadingSeeLater] = useState(false);
 
-        {/* Información del canal */}
-        <div className="p-4 flex-1 flex flex-col">
-          <h3 className="font-semibold text-primary mb-2 line-clamp-2">
-            {video.snippet.title}
-          </h3>
-          
-          <p className="text-tertiary text-sm mb-2">
-            <Link href={channelId ? `/channel/${channelId}` : '#'} className="hover:underline">
-              {video.snippet.channelTitle}
-            </Link>
-          </p>
-          
-          <p className="text-tertiary text-xs mb-3">
-            {formatDate(video.snippet.publishedAt)}
-          </p>
-          
-          <p className="text-secondary text-sm line-clamp-3 flex-1">
-            {video.snippet.description}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Cargar estado inicial desde backend si hay token
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token || !videoId) return;
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:4000/api';
+    fetch(`${backendUrl}/user/favorites`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data.favorites)) setIsFavorite(data.favorites.includes(videoId));
+      });
+    fetch(`${backendUrl}/user/see-later`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data.see_later)) setIsSeeLater(data.see_later.includes(videoId));
+      });
+  }, [videoId]);
 
-  // Para videos, hacer toda la card clickeable
+  const handleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!videoId) return;
+    const token = localStorage.getItem('token');
+    if (!token) {
+      showToast('Debes iniciar sesión para guardar favoritos', 'warning');
+      return;
+    }
+    setLoadingFav(true);
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:4000/api';
+    try {
+      const method = isFavorite ? 'DELETE' : 'POST';
+      const res = await fetch(`${backendUrl}/user/favorites/${videoId}`, {
+        method,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Error al actualizar favoritos');
+      setIsFavorite(!isFavorite);
+      showToast(isFavorite ? 'Eliminado de favoritos' : 'Agregado a favoritos', 'success');
+    } catch {
+      showToast('Error al actualizar favoritos', 'error');
+    } finally {
+      setLoadingFav(false);
+    }
+  };
+
+  const handleSeeLater = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!videoId) return;
+    const token = localStorage.getItem('token');
+    if (!token) {
+      showToast('Debes iniciar sesión para guardar en ver más tarde', 'warning');
+      return;
+    }
+    setLoadingSeeLater(true);
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:4000/api';
+    try {
+      const method = isSeeLater ? 'DELETE' : 'POST';
+      const res = await fetch(`${backendUrl}/user/see-later/${videoId}`, {
+        method,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Error al actualizar ver más tarde');
+      setIsSeeLater(!isSeeLater);
+      showToast(isSeeLater ? 'Eliminado de ver más tarde' : 'Agregado a ver más tarde', 'success');
+    } catch {
+      showToast('Error al actualizar ver más tarde', 'error');
+    } finally {
+      setLoadingSeeLater(false);
+    }
+  };
+
+  // Solo renderizar videos
   return (
     <Link href={`/video/${video.id.videoId}`} className="block h-full">
       <div
@@ -64,7 +103,7 @@ export default function VideoCard({ video, formatDate }: VideoCardProps) {
         {/* Thumbnail */}
         <div className="relative">
           <img
-            src={thumbnailUrl}
+            src={video.snippet.thumbnails.medium?.url}
             alt={video.snippet.title}
             className="w-full h-48 object-cover"
           />
@@ -74,23 +113,43 @@ export default function VideoCard({ video, formatDate }: VideoCardProps) {
             </svg>
           </div>
         </div>
-
         {/* Información del video */}
         <div className="p-4 flex-1 flex flex-col">
-          <h3 className="font-semibold text-primary mb-2 line-clamp-2">
-            {video.snippet.title}
-          </h3>
-          
-          <p className="text-tertiary text-sm mb-2">
-            <Link href={channelId ? `/channel/${channelId}` : '#'} className="hover:underline" onClick={(e) => e.stopPropagation()}>
-              {video.snippet.channelTitle}
-            </Link>
-          </p>
-          
+          <div className="flex justify-between items-start mb-2 gap-2">
+            <h3 className="font-semibold text-primary line-clamp-2">
+              {video.snippet.title}
+            </h3>
+            <div className="flex gap-2 shrink-0">
+              <button
+                onClick={handleFavorite}
+                disabled={loadingFav}
+                title={isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                className={`rounded-full p-1 transition-colors ${isFavorite ? 'text-yellow-400' : 'text-tertiary hover:text-yellow-400'} ${loadingFav ? 'opacity-50 cursor-wait' : ''}`}
+              >
+                <StarIcon filled={isFavorite} />
+              </button>
+              <button
+                onClick={handleSeeLater}
+                disabled={loadingSeeLater}
+                title={isSeeLater ? 'Quitar de ver más tarde' : 'Agregar a ver más tarde'}
+                className={`rounded-full p-1 transition-colors ${isSeeLater ? 'text-blue-400' : 'text-tertiary hover:text-blue-400'} ${loadingSeeLater ? 'opacity-50 cursor-wait' : ''}`}
+              >
+                <ClockIcon filled={isSeeLater} />
+              </button>
+            </div>
+          </div>
+          <span
+            className="hover:underline text-blue-500 cursor-pointer text-sm mb-2 w-fit"
+            onClick={e => {
+              e.stopPropagation();
+              if (channelId) window.location.href = `/channel/${channelId}`;
+            }}
+          >
+            {video.snippet.channelTitle}
+          </span>
           <p className="text-tertiary text-xs mb-3">
             {formatDate(video.snippet.publishedAt)}
           </p>
-          
           <p className="text-secondary text-sm line-clamp-3 flex-1">
             {video.snippet.description}
           </p>
