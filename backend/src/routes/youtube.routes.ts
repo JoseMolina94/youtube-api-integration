@@ -51,7 +51,6 @@ router.get('/related', async (req: Request, res: Response) => {
   if (!id) return res.status(400).json({ error: 'Parámetro "id" requerido' });
   try {
     const related = await getRelatedVideos(id, pageToken);
-    console.log('Videos relacionados encontrados:', related.items?.length || 0);
     res.json(related);
   } catch (err: any) {
     console.error('Error obteniendo videos relacionados:', err);

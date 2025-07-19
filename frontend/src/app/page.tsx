@@ -1,17 +1,15 @@
 "use client";
 
 import { Video } from '@/types/Video';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import VideoCard from '@/components/VideoCard';
 
 export default function Home() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [currentQuery, setCurrentQuery] = useState('');
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
@@ -45,26 +43,6 @@ export default function Home() {
     loadInitialVideos();
   }, []);
 
-  // Buscar videos por query
-  const handleSearch = async (query: string) => {
-    setLoading(true);
-    setError('');
-    setNextPageToken(null);
-    try {
-      const response = await fetch(`http://localhost:4000/api/youtube/search?q=${encodeURIComponent(query)}`);
-      if (!response.ok) {
-        throw new Error('Error al buscar videos');
-      }
-      const data = await response.json();
-      setVideos(data?.items);
-      setNextPageToken(data?.nextPageToken || null);
-    } catch (err: any) {
-      setError(err.message || 'Error al buscar videos');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Infinite scroll handler
   useEffect(() => {
     const handleScroll = () => {
@@ -82,7 +60,7 @@ export default function Home() {
     if (!nextPageToken || loadingMore) return;
     setLoadingMore(true);
     try {
-      const response = await fetch(`http://localhost:4000/api/youtube/search?q=${encodeURIComponent(currentQuery || 'trending')}&pageToken=${nextPageToken}`);
+      const response = await fetch(`http://localhost:4000/api/youtube/search?q=trending&pageToken=${nextPageToken}`);
       const data = await response.json();
       setVideos((prev) => {
         const existingIds = new Set(prev.map(v => v.id.videoId));
@@ -97,8 +75,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-surface-primary text-primary">
-      <main className="container mx-auto px-4 py-8" ref={scrollRef}>
-        {/* Buscador eliminado, ahora está en el header */}
+      <main className="container mx-auto px-4 py-8">
         {error && (
           <p className="text-red-500 text-center mt-4">{error}</p>
         )}
@@ -120,10 +97,10 @@ export default function Home() {
         )}
 
         {/* Estado vacío */}
-        {!loading && videos?.length === 0 && currentQuery && (
+        {!loading && videos?.length === 0 && (
           <div className="text-center py-12">
             <p className="text-tertiary text-lg">
-              No se encontraron videos para "{currentQuery}"
+              No se encontraron videos
             </p>
           </div>
         )}
